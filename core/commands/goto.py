@@ -8,12 +8,12 @@ from fman.url import as_url, splitscheme, as_human_readable
 from itertools import islice, chain
 from os.path import expanduser, islink, isabs, normpath
 from pathlib import Path, PurePath
-from random import shuffle
 from time import time
 
 import os
 import re
 import sys
+import secrets
 
 __all__ = ['GoTo', 'GoToListener']
 
@@ -182,7 +182,7 @@ def _remove_nonexistent(vps, timeout_secs):
 	# hence incur a higher "penalty" when we get it wrong. So keep it simple.
 	end_time = time() + timeout_secs
 	paths = list(vps)
-	shuffle(paths)
+	secrets.SystemRandom().shuffle(paths)
 	for path in paths:
 		if time() >= end_time:
 			break
