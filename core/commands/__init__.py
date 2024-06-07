@@ -34,6 +34,7 @@ import re
 import sys
 
 from .goto import *
+from security import safe_command
 
 class About(ApplicationCommand):
 	def __call__(self):
@@ -370,7 +371,7 @@ def _open_local_files_mac(paths):
 			non_executables.append(path)
 	if non_executables:
 		try:
-			Popen(['open'] + non_executables, **_quiet)
+			safe_command.run(Popen, ['open'] + non_executables, **_quiet)
 		except OSError:
 			pass
 
@@ -385,7 +386,7 @@ def _open_local_files_linux(paths):
 				raise e from None
 
 def _run_executable(path):
-	Popen([path], cwd=os.path.dirname(path), **_quiet)
+	safe_command.run(Popen, [path], cwd=os.path.dirname(path), **_quiet)
 
 _quiet = {'stdout': DEVNULL, 'stderr': DEVNULL}
 
@@ -422,7 +423,7 @@ class OpenWithEditor(DirectoryPaneCommand):
 		editor = self._get_editor()
 		if editor:
 			popen_kwargs = strformat_dict_values(editor, {'file': path})
-			Popen(**popen_kwargs)
+			safe_command.run(Popen, **popen_kwargs)
 	def _get_editor(self):
 		settings = load_json('Core Settings.json', default={})
 		result = settings.get('editor', {})
@@ -1560,8 +1561,7 @@ if PLATFORM == 'Mac':
 		def _run_applescript(self, script, args=None):
 			if args is None:
 				args = []
-			process = Popen(
-				['osascript', '-'] + args, stdin=PIPE,
+			process = safe_command.run(Popen, ['osascript', '-'] + args, stdin=PIPE,
 				stdout=DEVNULL, stderr=DEVNULL
 			)
 			process.communicate(script.encode('ascii'))
@@ -1832,7 +1832,7 @@ def _open_files_with_app(files, app):
 		# by becoming corrupted, eg. when the user edits them.
 		show_alert('Could not find the configuration for %s.' % app)
 		return
-	Popen(**get_popen_kwargs_for_opening(files, with_=app_path))
+	safe_command.run(Popen, **get_popen_kwargs_for_opening(files, with_=app_path))
 
 def _load_file_associations():
 	return load_json('File Associations.json', {})
@@ -2078,7 +2078,7 @@ if PLATFORM == 'Mac':
 				return
 			args = ['qlmanage', '-p']
 			args.extend(map(as_human_readable, files))
-			Popen(args, stdout=DEVNULL, stderr=DEVNULL)
+			safe_command.run(Popen, args, stdout=DEVNULL, stderr=DEVNULL)
 
 if PLATFORM == 'Windows':
 	class GoToRootOfCurrentDrive(DirectoryPaneCommand):

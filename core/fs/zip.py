@@ -16,6 +16,7 @@ import os
 import os.path
 import re
 import signal
+from security import safe_command
 
 # Prevent 'Rename' below from accidentally overwriting core.Rename:
 __all__ = ['ZipFileSystem', 'SevenZipFileSystem', 'TarFileSystem']
@@ -477,8 +478,7 @@ class Popen7Zip:
 		# Windows, when fman is run as a GUI app, we get:
 		# 	OSError: [WinError 6] The handle is invalid
 		# This is likely caused by https://bugs.python.org/issue3905.
-		self._process = Popen(
-			[_7ZIP_BINARY] + args, stdout=PIPE, stderr=DEVNULL, stdin=DEVNULL,
+		self._process = safe_command.run(Popen, [_7ZIP_BINARY] + args, stdout=PIPE, stderr=DEVNULL, stdin=DEVNULL,
 			cwd=cwd, env=env, **kwargs
 		)
 		self.stdout = SourceClosingTextIOWrapper(self._process.stdout, encoding)
