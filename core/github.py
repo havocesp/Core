@@ -79,7 +79,7 @@ def _get(url):
 	except URLError:
 		# Fallback: Some users get "SSL: CERTIFICATE_VERIFY_FAILED" for urlopen.
 		try:
-			response = requests.get(url)
+			response = requests.get(url, timeout=60)
 		except RequestException as e:
 			raise URLError(e.__class__.__name__)
 		if response.status_code != 200:
