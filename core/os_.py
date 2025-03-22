@@ -5,6 +5,7 @@ from subprocess import Popen, check_output
 
 import os
 import sys
+from security import safe_command
 
 def is_arch():
 	try:
@@ -87,7 +88,7 @@ def _is_ubuntu():
 
 def _run_app_from_setting(app, curr_dir):
 	popen_kwargs = strformat_dict_values(app, {'curr_dir': curr_dir})
-	Popen(**popen_kwargs)
+	safe_command.run(Popen, **popen_kwargs)
 
 def _is_gnome_based():
 	curr_desktop = os.environ.get('XDG_CURRENT_DESKTOP', '').lower()
