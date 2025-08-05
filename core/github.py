@@ -4,8 +4,8 @@ from urllib.request import urlopen
 
 import json
 import re
-import requests
 import sys
+from security import safe_requests
 
 def find_repos(topics):
 	query = '+'.join('topic:' + topic for topic in topics)
@@ -79,7 +79,7 @@ def _get(url):
 	except URLError:
 		# Fallback: Some users get "SSL: CERTIFICATE_VERIFY_FAILED" for urlopen.
 		try:
-			response = requests.get(url)
+			response = safe_requests.get(url)
 		except RequestException as e:
 			raise URLError(e.__class__.__name__)
 		if response.status_code != 200:
